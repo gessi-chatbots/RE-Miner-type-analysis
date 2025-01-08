@@ -1,0 +1,8 @@
+fastapi==0.109.0
+uvicorn==0.27.0
+textblob==0.17.1
+pydantic==2.6.0
+python-dotenv==1.0.0
+httpx==0.26.0
+sqlalchemy==2.0.27
+imbalanced-learn==0.11.0 
