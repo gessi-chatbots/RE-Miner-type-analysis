@@ -1,1 +1,1 @@
-# REMiner-type-extractor
+# RE-Miner-type-extractor
