@@ -9,4 +9,6 @@
 
 Datasets used for this project:
 
-N. Alturaief, H. Aljamaan, M. Baslyman, Aware: Aspect-based sentiment analysis dataset of apps reviews for requirements elicitation, in: 2021 36th IEEE/ACM International Conference on Automated Software Engineering Workshops (ASEW), 2021, pp. 211–218. doi:10.1109/ASEW52652.2021.00049.
+A. F. Araujo, M. P. S. Gôlo, R. M. Marcacini, Opinion mining for app reviews: an analysis of
+textual representation and predictive models, Automated Software Engg. 29 (2022). doi:10.1007/
+s10515-021-00301-1.
