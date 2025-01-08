@@ -1,4 +1,6 @@
 from enums.service_enum import TypeServiceType
+from services.bert_type_service import BertTypeService
+from services.roberta_type_service import RobertaTypeService
 from services.distilbert_type_service import DistilbertTypeService
 from services.type_service_base import TypeService
 
@@ -14,8 +16,13 @@ class TypeServiceFactory:
                 f"Available services are: {available_services}"
             )
         
-        if service_enum == TypeServiceType.DISTILBERT:
+        if service_enum == TypeServiceType.BERT:
+            return BertTypeService()
+        elif service_enum == TypeServiceType.ROBERTA:
+            return RobertaTypeService()
+        elif service_enum == TypeServiceType.DISTILBERT:
             return DistilbertTypeService()
             
         logging.error(f"Invalid service type: {service_type}")
         raise ValueError(f"Invalid service type: {service_type}")
+
