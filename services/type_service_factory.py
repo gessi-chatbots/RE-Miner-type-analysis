@@ -1,5 +1,5 @@
 from enums.service_enum import TypeServiceType
-from services.m_distilbert_type_service import MDistilbertTypeService
+from services.distilbert_type_service import DistilbertTypeService
 from services.type_service_base import TypeService
 
 class TypeServiceFactory:
@@ -14,8 +14,8 @@ class TypeServiceFactory:
                 f"Available services are: {available_services}"
             )
         
-        if service_enum == TypeServiceType.M_DISTILBERT:
-            return MDistilbertTypeService()
+        if service_enum == TypeServiceType.DISTILBERT:
+            return DistilbertTypeService()
             
         logging.error(f"Invalid service type: {service_type}")
         raise ValueError(f"Invalid service type: {service_type}")
