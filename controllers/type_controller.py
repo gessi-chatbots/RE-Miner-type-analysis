@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Query
-from models.models import TypeRequest, TrainModelRequest
+from models.models import TypeRequest, TrainModelRequest, SingleReviewRequest, ReviewItem
 from services.type_service_factory import TypeServiceFactory
 from services.type_service import TypeService
 from enums.service_enum import TypeServiceType
 import logging
+from typing import Union
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -14,12 +16,19 @@ async def ping():
 
 @router.post("/analyze-type")
 async def analyze_type(
-    request: TypeRequest,
+    request: Union[TypeRequest, SingleReviewRequest],
     type_service: TypeServiceType = Query(..., alias="type-service")
 ):
     service = TypeServiceFactory.get_service(type_service.value)
-    analyzed_reviews = service.analyze_type(request.reviews)
-    return {"reviews": analyzed_reviews} 
+    
+    if isinstance(request, SingleReviewRequest):
+        reviews = [ReviewItem(reviewId="single", text=request.text)]
+        analyzed_reviews = service.analyze_type(reviews)
+        return {"reviewId": "single", "text": analyzed_reviews[0].text, "type": analyzed_reviews[0].type} 
+    else:
+        reviews = request.reviews
+        analyzed_reviews = service.analyze_type(reviews)
+        return {"reviews": analyzed_reviews} 
 
 @router.post("/train-model")
 async def train_model(
