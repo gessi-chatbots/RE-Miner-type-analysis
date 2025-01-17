@@ -7,6 +7,7 @@ import logging
 from models.models import ReviewItem
 from services.type_service_base import TypeService
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import os
 
 class TransformerTypeServiceBase(TypeService):
     def __init__(self, model_name: str):
@@ -17,10 +18,20 @@ class TransformerTypeServiceBase(TypeService):
         self.logger = logging.getLogger(__name__)
 
     def analyze_type(self, reviews: List[ReviewItem]) -> List[ReviewItem]:
-        # Ensure model is initialized
+        # Load model if not initialized
         if self.model is None or self.tokenizer is None:
-            self.logger.error("Model or tokenizer not initialized. Please train the model first.")
-            return reviews
+            save_directory = f"saved_models/{self.model_name.replace('/', '_')}"
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(save_directory)
+                self.model = AutoModelForSequenceClassification.from_pretrained(save_directory)
+                # Load label mappings
+                mappings = torch.load(f"{save_directory}/label_mappings.pt")
+                self.label2id = mappings['label2id']
+                self.id2label = mappings['id2label']
+                self.logger.info("Model, tokenizer, and mappings loaded successfully")
+            except Exception as e:
+                self.logger.error(f"Failed to load model: {str(e)}")
+                return reviews
 
         # Prepare device
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -112,7 +123,7 @@ class TransformerTypeServiceBase(TypeService):
         
         # Training loop
         self.model.train()
-        for epoch in range(10):
+        for epoch in range(3):
             total_loss = 0
             progress_bar = tqdm(dataloader, desc=f'Epoch {epoch + 1}')
             
@@ -137,4 +148,19 @@ class TransformerTypeServiceBase(TypeService):
             avg_loss = total_loss / len(dataloader)
             self.logger.info(f'Epoch {epoch + 1} - Average loss: {avg_loss:.4f}')
         
+        # Create save directory if it doesn't exist
+        save_directory = f"saved_models/{self.model_name.replace('/', '_')}"
+        os.makedirs(save_directory, exist_ok=True)
+        
+        # Save the model and tokenizer
+        self.model.save_pretrained(save_directory)
+        self.tokenizer.save_pretrained(save_directory)
+        
+        # Save label mappings
+        torch.save({
+            'label2id': self.label2id,
+            'id2label': self.id2label
+        }, f"{save_directory}/label_mappings.pt")
+        
+        self.logger.info(f'Model and tokenizer saved to {save_directory}')
         self.logger.info('Training completed')
